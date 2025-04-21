@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ user.username }}님의 프로필</title>
+</head>
+<body>
+    <h1>{{ user.username }}님의 프로필</h1>
+    <p><strong>소개글:</strong> {{ user.bio or '등록된 소개글이 없습니다.' }}</p>
+    <a href="{{ url_for('dashboard') }}">← 돌아가기</a>
+</body>
+</html>

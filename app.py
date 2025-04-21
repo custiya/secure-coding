@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import re
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 from flask_socketio import SocketIO, send
 
@@ -142,6 +143,27 @@ def profile():
     cursor.execute("SELECT * FROM user WHERE id = ?", (session['user_id'],))
     current_user = cursor.fetchone()
     return render_template('profile.html', user=current_user)
+
+# 다른 사용자 프로필 확인
+@app.route('/user/<username>')
+def view_user(username):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    # username 유효성 검증: 길이 제한 및 알파벳/숫자/언더스코어만 허용
+    if not re.fullmatch(r"\w{3,20}", username):  # 최소 3자, 최대 20자
+        flash("잘못된 사용자 이름입니다.")
+        return redirect(url_for('dashboard'))
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT username, bio FROM user WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    if not user:
+        flash("사용자를 찾을 수 없습니다.")
+        return redirect(url_for('dashboard'))
+
+    return render_template("view_user.html", user=user)
 
 # 상품 등록
 @app.route('/product/new', methods=['GET', 'POST'])
